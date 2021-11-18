@@ -1,0 +1,11 @@
+#!perl
+# PODNAME: toggl
+
+use v5.30;
+use warnings;
+use App::Toggl;
+
+binmode(STDIN, ":encoding(UTF-8)");
+binmode(STDOUT, ":encoding(UTF-8)");
+
+App::Toggl->run;
