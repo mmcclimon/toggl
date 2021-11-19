@@ -69,4 +69,9 @@ sub get_time_entries ($self, $start, $end) {
   return $entries;
 }
 
+sub get_current_timer ($self) {
+  my $data = $self->_do_get('/time_entries/current');
+  return $data->{data};   # maybe undef
+}
+
 1;
