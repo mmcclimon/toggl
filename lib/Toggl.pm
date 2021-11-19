@@ -49,7 +49,7 @@ sub url_for ($self, $endpoint, $params = {}) {
 }
 
 sub _do_get ($self, $endpoint, $arg = {}) {
-  my $res = $self->lwp->get($self->url_for($endpoint));
+  my $res = $self->lwp->get($self->url_for($endpoint, $arg));
   unless ($res->is_success) {
     die "d'oh, error trying to GET $endpoint\n" . $res->as_string;
   }
@@ -59,7 +59,13 @@ sub _do_get ($self, $endpoint, $arg = {}) {
 
 sub get_time_entries ($self, $start, $end) {
   # GET https://api.track.toggl.com/api/v8/time_entries
-  my $entries = $self->_do_get('/time_entries');
+  require DateTime::Format::ISO8601;
+  my $s = DateTime::Format::ISO8601->format_datetime($start);
+  my $e = DateTime::Format::ISO8601->format_datetime($end);
+
+  my $params = { start_date => $s, end_date => $e };
+
+  my $entries = $self->_do_get('/time_entries', $params);
   return $entries;
 }
 
