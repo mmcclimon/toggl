@@ -19,6 +19,13 @@ sub execute ($self, $opt, $args) {
     $project_id = $self->toggl->projects->{$p};
   }
 
+  if (my ($sc) = $desc =~ /^@(\w+)/) {
+    my $got = $self->toggl->resolve_shortcut($sc);
+    die "could not resolve shortcut $desc\n" unless $got;
+    $desc = $got;
+    $project_id = $self->toggl->projects->{evergreen};
+  }
+
   my $t = $self->toggl->start_timer($desc, $project_id);
   say "started timer: " . $self->toggl->oneline_desc($t);
 }

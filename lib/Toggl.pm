@@ -67,6 +67,13 @@ has _proj_by_id => (
   default => sub ($self) { +{ reverse $self->projects->%* } }
 );
 
+# shortcut => description
+has task_shortcuts => (
+  is => 'ro',
+  lazy => 1,
+  default => sub ($self) { $self->config->{task_shortcuts} // {} }
+);
+
 has ua_string => (
   is => 'ro',
   lazy => 1,
@@ -170,5 +177,7 @@ sub oneline_desc ($self, $timer) {
   my $proj = $self->project_name_for($timer->{pid} // '');
   return "$timer->{description} ($proj)";
 }
+
+sub resolve_shortcut ($self, $sc) { $self->task_shortcuts->{$sc} }
 
 1;
