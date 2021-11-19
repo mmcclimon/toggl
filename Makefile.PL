@@ -29,10 +29,13 @@ my %WriteMakefileArgs = (
     "List::Util" => 0,
     "MIME::Base64" => 0,
     "Moo" => 0,
+    "Path::Tiny" => 0,
+    "TOML::Parser" => 0,
     "Time::Duration" => 0,
     "URI" => 0,
     "experimental" => 0,
     "parent" => 0,
+    "utf8" => 0,
     "warnings" => 0
   },
   "TEST_REQUIRES" => {
@@ -60,12 +63,15 @@ my %FallbackPrereqs = (
   "List::Util" => 0,
   "MIME::Base64" => 0,
   "Moo" => 0,
+  "Path::Tiny" => 0,
+  "TOML::Parser" => 0,
   "Test::More" => "0.96",
   "Time::Duration" => 0,
   "URI" => 0,
   "experimental" => 0,
   "parent" => 0,
   "strict" => 0,
+  "utf8" => 0,
   "warnings" => 0
 );
 

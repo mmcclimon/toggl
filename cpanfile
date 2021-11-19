@@ -10,11 +10,14 @@ requires "LWP::UserAgent" => "0";
 requires "List::Util" => "0";
 requires "MIME::Base64" => "0";
 requires "Moo" => "0";
+requires "Path::Tiny" => "0";
+requires "TOML::Parser" => "0";
 requires "Time::Duration" => "0";
 requires "URI" => "0";
 requires "experimental" => "0";
 requires "parent" => "0";
 requires "perl" => "v5.30.0";
+requires "utf8" => "0";
 requires "warnings" => "0";
 
 on 'test' => sub {

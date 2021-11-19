@@ -22,10 +22,26 @@ has lwp => (
   },
 );
 
+has config => (
+  is => 'ro',
+  lazy => 1,
+  default => sub ($self) {
+    require Path::Tiny;
+
+    my $filename = $ENV{TOGGL_CONFIG_FILE} // '~/.togglrc';
+    my $path = Path::Tiny::path("~/.togglrc");
+
+    return {} unless $path->is_file;
+
+    require TOML::Parser;
+    return TOML::Parser->new->parse($path->slurp);
+  },
+);
+
 has api_token => (
   is => 'ro',
   lazy => 1,
-  default => sub { $ENV{TOGGL_API_TOKEN} },
+  default => sub ($self) { $self->config->{api_token} }
 );
 
 has auth_header => (
@@ -35,6 +51,12 @@ has auth_header => (
     my $auth = encode_base64(join(q{:}, $self->api_token, 'api_token'), '');
     return [ Authorization => "Basic $auth" ];
   },
+);
+
+has projects => (
+  is => 'ro',
+  lazy => 1,
+  default => sub ($self) { $self->config->{project_shortcuts} }
 );
 
 sub BUILD ($self, $args) {
