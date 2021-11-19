@@ -136,6 +136,16 @@ sub stop_current_timer ($self) {
   return $data->{data};
 }
 
+sub abort_current_timer ($self) {
+  my $timer = $self->_do_get('/time_entries/current')->{data};
+  return unless $timer;
+
+  my $res = $self->lwp->delete($self->url_for("/time_entries/$timer->{id}"));
+  die "d'oh, http error\n" . $res->as_string unless $res->is_success;
+
+  return $timer;
+}
+
 sub start_timer ($self, $description, $project_id = undef) {
   require DateTime;
   require DateTime::Format::ISO8601;
