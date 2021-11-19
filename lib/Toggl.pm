@@ -38,11 +38,13 @@ has config => (
   },
 );
 
-has api_token => (
-  is => 'ro',
-  lazy => 1,
-  default => sub ($self) { $self->config->{api_token} }
-);
+for my $attr (qw( api_token workspace_id )) {
+  has $attr => (
+    is => 'ro',
+    lazy => 1,
+    default => sub ($self) { $self->config->{$attr} }
+  );
+}
 
 has auth_header => (
   is => 'ro',
@@ -63,6 +65,12 @@ has _proj_by_id => (
   is => 'ro',
   lazy => 1,
   default => sub ($self) { +{ reverse $self->projects->%* } }
+);
+
+has ua_string => (
+  is => 'ro',
+  lazy => 1,
+  default => sub ($self) { $self->config->{ua_string} // 'toggl/perl' }
 );
 
 sub BUILD ($self, $args) {
@@ -94,6 +102,15 @@ sub _do_put ($self, $endpoint, $arg = {}) {
   return $self->_decode_or_throw($res);
 }
 
+sub _do_post ($self, $endpoint, $data) {
+  my $res = $self->lwp->post(
+    $self->url_for($endpoint),
+    Content => encode_json($data),
+  );
+
+  return $self->_decode_or_throw($res);
+}
+
 sub get_time_entries ($self, $start, $end) {
   # GET https://api.track.toggl.com/api/v8/time_entries
   require DateTime::Format::ISO8601;
@@ -117,6 +134,24 @@ sub stop_current_timer ($self) {
 
   my $data = $self->_do_put("/time_entries/$timer->{id}/stop");
   return $data->{data};
+}
+
+sub start_timer ($self, $description, $project_id = undef) {
+  require DateTime;
+  require DateTime::Format::ISO8601;
+  my $now = DateTime->now(time_zone => 'local');
+
+  my $timer = $self->_do_post('/time_entries/start', {
+    time_entry => {
+      description  => $description,
+      created_with => $self->ua_string,
+      start        => DateTime::Format::ISO8601->format_datetime($now),
+      wid          => $self->workspace_id,
+      ($project_id ? (pid => $project_id) : ()),
+    }
+  });
+
+  return $timer->{data};
 }
 
 sub project_name_for ($self, $pid) { $self->_proj_by_id->{$pid} // '--' }
