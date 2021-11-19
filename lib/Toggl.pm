@@ -48,13 +48,22 @@ sub url_for ($self, $endpoint, $params = {}) {
   return $uri;
 }
 
-sub _do_get ($self, $endpoint, $arg = {}) {
-  my $res = $self->lwp->get($self->url_for($endpoint, $arg));
-  unless ($res->is_success) {
-    die "d'oh, error trying to GET $endpoint\n" . $res->as_string;
+sub _decode_or_throw ($self, $http_res) {
+  unless ($http_res->is_success) {
+    die "d'oh, http error\n" . $http_res->as_string;
   }
 
-  return decode_json($res->decoded_content);
+  return decode_json($http_res->decoded_content);
+}
+
+sub _do_get ($self, $endpoint, $arg = {}) {
+  my $res = $self->lwp->get($self->url_for($endpoint, $arg));
+  return $self->_decode_or_throw($res);
+}
+
+sub _do_put ($self, $endpoint, $arg = {}) {
+  my $res = $self->lwp->put($self->url_for($endpoint, $arg));
+  return $self->_decode_or_throw($res);
 }
 
 sub get_time_entries ($self, $start, $end) {
@@ -72,6 +81,14 @@ sub get_time_entries ($self, $start, $end) {
 sub get_current_timer ($self) {
   my $data = $self->_do_get('/time_entries/current');
   return $data->{data};   # maybe undef
+}
+
+sub stop_current_timer ($self) {
+  my $timer = $self->_do_get('/time_entries/current')->{data};
+  return unless $timer;
+
+  my $data = $self->_do_put("/time_entries/$timer->{id}/stop");
+  return $data->{data};
 }
 
 1;
