@@ -31,8 +31,8 @@ my %WriteMakefileArgs = (
     "Moo" => 0,
     "Time::Duration" => 0,
     "URI" => 0,
-    "base" => 0,
     "experimental" => 0,
+    "parent" => 0,
     "warnings" => 0
   },
   "TEST_REQUIRES" => {
@@ -63,8 +63,8 @@ my %FallbackPrereqs = (
   "Test::More" => "0.96",
   "Time::Duration" => 0,
   "URI" => 0,
-  "base" => 0,
   "experimental" => 0,
+  "parent" => 0,
   "strict" => 0,
   "warnings" => 0
 );

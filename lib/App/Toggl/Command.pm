@@ -2,7 +2,7 @@ use v5.30;
 use warnings;
 package App::Toggl::Command;
 
-use base 'App::Cmd::Command';
+use parent 'App::Cmd::Command';
 use experimental 'signatures';
 use Toggl;
 

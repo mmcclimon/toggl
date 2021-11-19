@@ -12,8 +12,8 @@ requires "MIME::Base64" => "0";
 requires "Moo" => "0";
 requires "Time::Duration" => "0";
 requires "URI" => "0";
-requires "base" => "0";
 requires "experimental" => "0";
+requires "parent" => "0";
 requires "perl" => "v5.30.0";
 requires "warnings" => "0";
 
