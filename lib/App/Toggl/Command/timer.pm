@@ -14,8 +14,9 @@ sub execute ($self, $opt, $args) {
     return;
   }
 
-  say "time: " . $self->format_duration(time + $timer->{duration});
-  say "desc: " . $timer->{description};
+  printf "%s so far: %s\n",
+    $self->format_duration(time + $timer->{duration}),
+    $self->toggl->oneline_desc($timer);
 }
 
 1;

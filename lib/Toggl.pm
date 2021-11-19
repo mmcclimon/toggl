@@ -59,6 +59,12 @@ has projects => (
   default => sub ($self) { $self->config->{project_shortcuts} }
 );
 
+has _proj_by_id => (
+  is => 'ro',
+  lazy => 1,
+  default => sub ($self) { +{ reverse $self->projects->%* } }
+);
+
 sub BUILD ($self, $args) {
   die "no api token found! (maybe set TOGGL_API_TOKEN?)\n"
     unless $self->api_token;
@@ -111,6 +117,13 @@ sub stop_current_timer ($self) {
 
   my $data = $self->_do_put("/time_entries/$timer->{id}/stop");
   return $data->{data};
+}
+
+sub project_name_for ($self, $pid) { $self->_proj_by_id->{$pid} // '--' }
+
+sub oneline_desc ($self, $timer) {
+  my $proj = $self->project_name_for($timer->{pid} // '');
+  return "$timer->{description} ($proj)";
 }
 
 1;

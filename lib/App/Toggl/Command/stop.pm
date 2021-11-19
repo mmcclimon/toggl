@@ -16,9 +16,9 @@ sub execute ($self, $opt, $args) {
     return;
   }
 
-  say "stopped timer!";
-  say "time: " . $self->format_duration($timer->{duration});
-  say "desc: " . $timer->{description};
+  printf "spent %s: %s\n",
+    $self->format_duration($timer->{duration}),
+    $self->toggl->oneline_desc($timer);
 }
 
 1;
