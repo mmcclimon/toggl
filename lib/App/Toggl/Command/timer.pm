@@ -6,6 +6,8 @@ use v5.30;
 use warnings;
 use experimental 'signatures';
 
+sub command_names { 'timer', 'current', 'now' }
+
 sub execute ($self, $opt, $args) {
   my $timer = $self->toggl->get_current_timer;
 
