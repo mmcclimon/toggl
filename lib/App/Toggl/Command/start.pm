@@ -22,8 +22,11 @@ sub execute ($self, $opt, $args) {
   if (my ($sc) = $desc =~ /^@(\w+)/) {
     my $got = $self->toggl->resolve_shortcut($sc);
     die "could not resolve shortcut $desc\n" unless $got;
-    $desc = $got;
-    $project_id = $self->toggl->projects->{evergreen};
+
+    $desc = $got->{desc};
+
+    my $pname = $got->{project};
+    $project_id = $self->toggl->projects->{$pname};
   }
 
   my $t = $self->toggl->start_timer($desc, $project_id);
