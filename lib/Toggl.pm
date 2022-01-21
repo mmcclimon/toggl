@@ -7,6 +7,7 @@ use Moo;
 use experimental 'signatures';
 
 use JSON::MaybeXS qw(encode_json decode_json);
+use Linear::Client;
 use LWP::UserAgent;
 use MIME::Base64 qw(encode_base64);
 use URI;
@@ -78,6 +79,26 @@ has ua_string => (
   is => 'ro',
   lazy => 1,
   default => sub ($self) { $self->config->{ua_string} // 'toggl/perl' }
+);
+
+has linear_conf => (
+  is => 'ro',
+  lazy => 1,
+  default => sub ($self) {
+    my $conf = $self->config->{linear};
+    die "tried to call ->linear_conf, but there isn't one!\n" unless $conf;
+    return $conf;
+  },
+);
+
+has linear_client => (
+  is => 'ro',
+  lazy => 1,
+  default => sub ($self) {
+    return Linear::Client->new({
+      auth_token => $self->linear_conf->{api_token},
+    });
+  },
 );
 
 sub BUILD ($self, $args) {
@@ -179,5 +200,36 @@ sub oneline_desc ($self, $timer) {
 }
 
 sub resolve_shortcut ($self, $sc) { $self->task_shortcuts->{$sc} }
+
+sub resolve_linear_id ($self, $id) {
+  my $res = $self->linear_client->do_query(
+    q[
+      query Issue ($id: String!) {
+        issue (id: $id) {
+          title
+          identifier
+          project { slugId }
+        }
+      }
+    ],
+    { id => $id },
+  )->await;
+
+  return unless $res->is_done;
+
+  my $issue = $res->result->{data}{issue};
+  return unless $issue;
+
+  my $desc = lc $issue->{identifier} . q{: } . $issue->{title};
+  my $slug = $issue->{project}{slugId};
+
+  my $projects = $self->linear_conf->{projects};
+  my $proj = $projects->{$slug} // $projects->{DEFAULT};
+
+  return {
+    description => $desc,
+    project_id  => $proj,
+  };
+}
 
 1;
