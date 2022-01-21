@@ -7,6 +7,7 @@ requires "DateTime" => "0";
 requires "DateTime::Format::ISO8601" => "0";
 requires "JSON::MaybeXS" => "0";
 requires "LWP::UserAgent" => "0";
+requires "Linear::Client" => "0";
 requires "List::Util" => "0";
 requires "MIME::Base64" => "0";
 requires "Moo" => "0";
