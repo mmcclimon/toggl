@@ -7,7 +7,6 @@ use Moo;
 use experimental 'signatures';
 
 use JSON::MaybeXS qw(encode_json decode_json);
-use Linear::Client;
 use LWP::UserAgent;
 use MIME::Base64 qw(encode_base64);
 use URI;
@@ -95,6 +94,7 @@ has linear_client => (
   is => 'ro',
   lazy => 1,
   default => sub ($self) {
+    require Linear::Client;
     return Linear::Client->new({
       auth_token => $self->linear_conf->{api_token},
     });
