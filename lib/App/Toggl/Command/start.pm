@@ -15,7 +15,9 @@ sub execute ($self, $opt, $args) {
   my $desc = join q{ }, @$args;
   die "gotta have a description or an id\n" unless $opt->id xor $desc;
 
-  if (my $task_id = $opt->id) {
+  my $likely_id = $desc =~ /^[a-z]{3,5}-[0-9]+$/i ? $desc : undef;
+
+  if (my $task_id = $opt->id || $likely_id) {
     my $task = $self->toggl->resolve_linear_id(uc $task_id);
     die "sorry, couldn't find that task\n" unless $task;
 
