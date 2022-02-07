@@ -220,7 +220,7 @@ sub resolve_linear_id ($self, $id) {
   my $issue = $res->result->{data}{issue};
   return unless $issue;
 
-  my $desc = lc $issue->{identifier} . q{: } . $issue->{title};
+  my $desc = lc($issue->{identifier}) . q{: } . $issue->{title};
   my $slug = $issue->{project}{slugId} // '';
 
   my $projects = $self->linear_conf->{projects};
