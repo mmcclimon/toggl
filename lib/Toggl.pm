@@ -196,6 +196,10 @@ sub project_name_for ($self, $pid) { $self->_proj_by_id->{$pid} // '--' }
 
 sub oneline_desc ($self, $timer) {
   my $proj = $self->project_name_for($timer->{pid} // '');
+
+  # we don't use a description and log all time against the project itself
+  return $proj if $proj && ! $timer->{description};
+
   return "$timer->{description} ($proj)";
 }
 

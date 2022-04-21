@@ -25,18 +25,21 @@ sub execute ($self, $opt, $args) {
   # we build a map of $project/description => duration
   my %entries;
   for my $e (@$entries) {
-    my $k = sprintf "%s!%s", $e->{pid} // '0', $e->{description};
+    my $k = sprintf "%s!%s", $e->{pid} // '0', $e->{description} // '';
     $entries{$k} += real_dur($e->{duration});
   }
 
   my $total = 0;
 
   for my $k (sort keys %entries) {
-    my ($pid, $desc) = split /!/, $k, 2;
+    my ($pid, $title) = split /!/, $k, 2;
     my $dur = $entries{$k} / 3600;    # in hours
 
     $total += $entries{$k};
-    printf "%5.2fh  %s (%s)\n", $dur, $desc, $self->toggl->project_name_for($pid);
+
+    my $project = $self->toggl->project_name_for($pid);
+    my $desc = $title ? "$title ($project)" : $project;
+    printf "%5.2fh  %s\n", $dur, $desc;
   }
 
   printf "------\n";
