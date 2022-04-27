@@ -213,6 +213,9 @@ sub resolve_linear_id ($self, $id) {
           title
           identifier
           project { slugId }
+          labels {
+            nodes { name }
+          }
         }
       }
     ],
@@ -226,9 +229,11 @@ sub resolve_linear_id ($self, $id) {
 
   my $desc = lc($issue->{identifier}) . q{: } . $issue->{title};
   my $slug = $issue->{project}{slugId} // '';
+  my $is_sb = grep {; $_->{name} eq 'support blocker' } $issue->{labels}{nodes}->@*;
 
   my $projects = $self->linear_conf->{projects};
-  my $proj = $projects->{$slug} // $projects->{DEFAULT};
+  my $proj = $projects->{$slug};
+  $proj  //= $is_sb ? $projects->{ESCALATION} : $projects->{DEFAULT};
 
   return {
     description => $desc,
