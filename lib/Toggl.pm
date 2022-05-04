@@ -174,7 +174,7 @@ sub abort_current_timer ($self) {
   return $timer;
 }
 
-sub start_timer ($self, $description, $project_id = undef) {
+sub start_timer ($self, $description, $project_id = undef, $tag = undef) {
   require DateTime;
   require DateTime::Format::ISO8601;
   my $now = DateTime->now(time_zone => 'local');
@@ -185,7 +185,8 @@ sub start_timer ($self, $description, $project_id = undef) {
       created_with => $self->ua_string,
       start        => DateTime::Format::ISO8601->format_datetime($now),
       wid          => $self->workspace_id,
-      ($project_id ? (pid => $project_id) : ()),
+      ($project_id ? (pid  => $project_id) : ()),
+      ($tag        ? (tags => [ $tag ])    : ()),
     }
   });
 
@@ -200,7 +201,10 @@ sub oneline_desc ($self, $timer) {
   # we don't use a description and log all time against the project itself
   return $proj if $proj && ! $timer->{description};
 
-  return "$timer->{description} ($proj)";
+  my $tags = join q{, }, map {; "#$_" } $timer->{tags}->@*;
+  $tags = ", $tags" if $tags;
+
+  return "$timer->{description} ($proj$tags)";
 }
 
 # from docs: if the time entry is currently running, the duration attribute

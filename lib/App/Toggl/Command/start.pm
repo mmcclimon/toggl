@@ -39,11 +39,15 @@ sub execute ($self, $opt, $args) {
     $project_id = $self->toggl->projects->{$pname};
   }
 
-  return $self->_start($desc, $project_id);
+  my @words = split /\s+/, $desc;
+  my $tag = $words[-1] =~ s/^#// ? $words[-1] : '';
+  pop @words if $tag;
+
+  return $self->_start(join(q{ }, @words), $project_id, $tag);
 }
 
-sub _start ($self, $desc, $project_id) {
-  my $t = $self->toggl->start_timer($desc, $project_id);
+sub _start ($self, $desc, $project_id, $tag = undef) {
+  my $t = $self->toggl->start_timer($desc, $project_id, $tag);
   say "started timer: " . $self->toggl->oneline_desc($t);
 }
 
