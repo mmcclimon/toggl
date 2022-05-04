@@ -12,8 +12,7 @@ sub toggl {
 }
 
 sub format_duration ($self, $dur) {
-  require Time::Duration;
-  return Time::Duration::concise(Time::Duration::duration($dur));
+  return $self->toggl->format_duration($dur);
 }
 
 1;

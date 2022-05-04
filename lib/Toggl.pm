@@ -203,6 +203,45 @@ sub oneline_desc ($self, $timer) {
   return "$timer->{description} ($proj)";
 }
 
+# from docs: if the time entry is currently running, the duration attribute
+# contains a negative value, denoting the start of the time entry in seconds
+# since epoch (Jan 1 1970). The correct duration can be calculated as
+# current_time + duration, where current_time is the current time in seconds
+# since epoch.
+my sub real_dur ($dur) { $dur >= 0 ? $dur : time + $dur }
+
+sub format_duration ($self, $dur) {
+  require Time::Duration;
+  return Time::Duration::concise(Time::Duration::duration($dur));
+}
+
+sub format_entry_list ($self, $entries) {
+  require List::Util;
+
+  # collect entries by desc/project id
+  my %tasks;
+  for my $e (@$entries) {
+    my $k = sprintf "%s!%s", $e->{pid} // '0', $e->{description} // '';
+    push $tasks{$k}->@*, $e;
+  }
+
+  my $total = 0;
+
+  for my $k (sort keys %tasks) {
+    my @entries = $tasks{$k}->@*;
+    my $seconds = List::Util::sum0(map {; real_dur($_->{duration}) } @entries);
+    my $hours   = $seconds / 3600;    # in hours
+
+    $total += $seconds;
+
+    my $desc = $self->oneline_desc($entries[0]);
+    printf "%5.2fh  %s\n", $hours, $desc;
+  }
+
+  printf "------\n";
+  printf "%5.2fh  total (%s)\n", $total / 3600, $self->format_duration($total);
+}
+
 sub resolve_shortcut ($self, $sc) { $self->task_shortcuts->{$sc} }
 
 sub resolve_linear_id ($self, $id) {
