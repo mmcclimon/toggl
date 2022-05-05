@@ -39,9 +39,13 @@ sub execute ($self, $opt, $args) {
     $project_id = $self->toggl->projects->{$pname};
   }
 
+  my $tag = '';
   my @words = split /\s+/, $desc;
-  my $tag = $words[-1] =~ s/^#// ? $words[-1] : '';
-  pop @words if $tag;
+
+  if (($words[-1] // '') =~ /^#(.*)/) {
+    $tag = $1;
+    pop @words if $tag;
+  }
 
   return $self->_start(join(q{ }, @words), $project_id, $tag);
 }
