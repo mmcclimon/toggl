@@ -278,6 +278,11 @@ sub resolve_linear_id ($self, $id) {
   my $proj = $projects->{$slug};
   $proj  //= $is_sb ? $projects->{ESCALATION} : $projects->{DEFAULT};
 
+  # use short desc. for support blockers, since they often have PII in # them
+  if ($is_sb) {
+    $desc = lc $issue->{identifier};
+  }
+
   return {
     description => $desc,
     project_id  => $proj,
