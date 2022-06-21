@@ -67,6 +67,12 @@ has _proj_by_id => (
   default => sub ($self) { +{ reverse $self->projects->%* } }
 );
 
+has project_clients => (
+  is => 'ro',
+  lazy => 1,
+  default => sub ($self) { $self->config->{project_clients} // {} }
+);
+
 # shortcut => description
 has task_shortcuts => (
   is => 'ro',
@@ -207,6 +213,12 @@ sub oneline_desc ($self, $timer) {
   return "$timer->{description} ($proj$tags)";
 }
 
+sub client_for_entry ($self, $entry) {
+  my $lookup = $self->project_clients;
+  return unless %$lookup;
+  return $lookup->{ $entry->{pid} } // $lookup->{DEFAULT};
+}
+
 # from docs: if the time entry is currently running, the duration attribute
 # contains a negative value, denoting the start of the time entry in seconds
 # since epoch (Jan 1 1970). The correct duration can be calculated as
@@ -219,12 +231,17 @@ sub format_duration ($self, $dur) {
   return Time::Duration::concise(Time::Duration::duration($dur));
 }
 
-sub format_entry_list ($self, $entries) {
+sub format_entry_list ($self, $entries, $for_client = undef) {
   require List::Util;
 
   # collect entries by desc/project id
   my %tasks;
   for my $e (@$entries) {
+    if ($for_client) {
+      my $client = $self->client_for_entry($e);
+      next if $client && $client ne $for_client;
+    }
+
     my $k = sprintf "%s!%s", $e->{pid} // '0', $e->{description} // '';
     push $tasks{$k}->@*, $e;
   }
