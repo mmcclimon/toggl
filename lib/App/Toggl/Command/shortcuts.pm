@@ -18,7 +18,13 @@ sub execute ($self, $opt, $args) {
 
   for my $sc (sort keys %$shortcuts) {
     my $task = $shortcuts->{$sc};
-    printf "%-${len}s  %s (%s)\n", "\@$sc", $task->{desc}, $task->{project};
+
+    # if this is a description-less task, just use the project
+    my $desc = $task->{desc}
+             ? "$task->{desc} ($task->{project})"
+             : "$task->{project} (*taskless*)";
+
+    printf "%-${len}s  %s\n", "\@$sc", $desc;
   }
 }
 
