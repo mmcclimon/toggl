@@ -34,7 +34,7 @@ has config => (
     return {} unless $path->is_file;
 
     require TOML::Parser;
-    return TOML::Parser->new->parse($path->slurp);
+    return TOML::Parser->new->parse($path->slurp_utf8);
   },
 );
 
